@@ -132,8 +132,8 @@ report() {
 
   # 5. arquivos que entrarão em docs/CHECKPOINTS/
   if [ -n "$COMMIT_BODY" ]; then
-    echo "Arquivo de documentação: docs/CHECKPOINTS/$DATE_FILE-<hash>.md"
-    echo "(o hash é gerado no commit, então o nome final aparece depois do push)"
+    echo "Documentação será arquivada em: docs/CHECKPOINTS/$DATE_FILE-$(date '+%H%M').md"
+    echo "(o nome real aparece depois do commit, no output final)"
     echo
   fi
 
@@ -244,3 +244,4 @@ else
   echo "Arquivo .git/checkpoint-summary-pending.md mantido para próxima tentativa." >&2
   exit 1
 fi
+# Última atualização: 2026-10-21T02:59:17Z
