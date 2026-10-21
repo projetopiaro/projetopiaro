@@ -83,10 +83,14 @@ parse_pending() {
 
   # Cabeçalho até a primeira linha "##". Tudo depois é corpo.
   local header body_raw
-  header="$(awk 'BEGIN{p=1} /^## /{p=0; exit} p{print}' "$file")"
-  body_raw="$(awk 'BEGIN{p=0} /^## /{p=1; next} p{print}' "$file" | sed 's/[[:space:]]*$//' | sed '/^$/N;/^\n$/D')"
+  # Cabeçalho = tudo ANTES da linha "## Resumo" (delimitador explícito).
+  header="$(awk 'BEGIN{p=1} /^## Resumo/{p=0; exit} p{print}' "$file")"
 
-  ORIGIN_BODY="$body_raw"
+  # Corpo = tudo a partir DEPOIS da linha "## Resumo", preservando
+  # os subtítulos "## ..." que a IA escrever dentro do resumo.
+  body_raw="$(awk 'BEGIN{p=0} /^## Resumo/{p=1; next} p{print}' "$file")"
+
+  ORIGIN_BODY="$(printf '%s' "$body_raw" | sed 's/[[:space:]]*$//' | sed '/^$/N;/^\n$/D')"
 
   # Extrai slug do cabeçalho
   ORIGIN_SLUG="$(printf '%s\n' "$header" | awk -F': *' '/^Slug:/{print $2; exit}' | tr -d '[:space:]')"
