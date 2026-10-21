@@ -178,15 +178,15 @@ HASH_SHORT="$(git rev-parse --short HEAD)"
 
 if [ -n "$COMMIT_BODY" ]; then
   mkdir -p docs/CHECKPOINTS
-  CHECKPOINT_DOC="docs/CHECKPOINTS/$DATE_FILE-$HASH_SHORT.md"
+  CHECKPOINT_DOC="docs/CHECKPOINTS/$DATE_FILE-$(date '+%H%M').md"
 
   {
     echo "<!--"
     echo "  Gerado automaticamente por scripts/session-checkpoint.sh"
-    echo "  Hash curto do commit: $HASH_SHORT (pode mudar se houver rebase antes do push)"
     echo "  Data: $DATE_HUMAN"
     echo "  Branch: $BRANCH"
     echo "  Remoto: $(git remote get-url origin)"
+    echo "  Commit anterior: $HASH_SHORT"
     echo "-->"
     echo
     echo "# Checkpoint — $DATE_HUMAN"
