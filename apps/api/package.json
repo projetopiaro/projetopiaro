@@ -1,0 +1,45 @@
+{
+  "name": "@ecommerce/api",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "lint": "eslint src --ext .ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:studio": "prisma studio",
+    "db:generate": "prisma generate"
+  },
+  "dependencies": {
+    "@fastify/cors": "^8.5.0",
+    "@fastify/helmet": "^11.1.1",
+    "@fastify/jwt": "^7.2.4",
+    "@fastify/rate-limit": "^9.1.0",
+    "@prisma/client": "^5.8.0",
+    "bcryptjs": "^2.4.3",
+    "bullmq": "^5.1.0",
+    "fastify": "^4.25.2",
+    "fastify-type-provider-zod": "^1.1.9",
+    "ioredis": "^5.3.2",
+    "mercadopago": "^2.0.8",
+    "pino": "^8.17.2",
+    "pino-pretty": "^10.3.1",
+    "resend": "^2.0.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20.10.0",
+    "prisma": "^5.8.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  }
+}

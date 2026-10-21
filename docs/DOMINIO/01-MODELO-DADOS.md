@@ -1,0 +1,354 @@
+<!-- Origem: DOCUMENTACAO-SISTEMA-ECOMMERCE-DIGITAL.md, secao 4 -->
+
+# Modelo de Dados
+
+### 1. Schema Prisma
+
+```prisma
+// apps/api/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL")
+}
+
+// ============================================
+// USUÁRIOS E AUTENTICAÇÃO
+// ============================================
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  nome          String
+  cpf           String?   @unique
+  telefone      String?
+  senhaHash     String
+  emailVerificado Boolean  @default(false)
+  tokenVerificacao String?
+  tokenResetSenha  String?
+  dataResetSenha   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  ativo         Boolean   @default(true)
+
+  // Auth
+  accounts      Account[]
+  sessions      Session[]
+
+  // Domain relations
+  orders         Order[]
+  subscriptions  Subscription[]
+  credentials    Credential[]
+  addresses      Address[]
+
+  @@index([email])
+  @@index([cpf])
+}
+
+model Account {
+  id                String  @id @default(uuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ============================================
+// ENDEREÇOS
+// ============================================
+
+model Address {
+  id          String  @id @default(uuid())
+  userId      String
+  nome        String
+  cep         String
+  logradouro  String
+  numero      String
+  complemento String?
+  bairro      String
+  cidade      String
+  estado      String  @db.VarChar(2)
+  padrao      Boolean @default(false)
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// ============================================
+// PRODUTOS
+// ============================================
+
+model Product {
+  id              String    @id @default(uuid())
+  nome            String
+  slug            String    @unique
+  descricaoCurta  String?   @db.VarChar(500)
+  descricao       String?   @db.Text
+  precoMensal     Decimal   @db.Decimal(10, 2)
+  precoTrimestral Decimal?  @db.Decimal(10, 2)
+  precoAnual      Decimal?  @db.Decimal(10, 2)
+  imagemUrl       String?
+  categoria       String?
+  ativo           Boolean   @default(true)
+  destaque        Boolean   @default(false)
+  ordem           Int       @default(0)
+  metadata        Json      @default("{}")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  orders         Order[]
+  subscriptions  Subscription[]
+  credentials    Credential[]
+
+  @@index([slug])
+  @@index([categoria])
+  @@index([ativo])
+  @@index([destaque])
+}
+
+// ============================================
+// PEDIDOS
+// ============================================
+
+model Order {
+  id              String      @id @default(uuid())
+  userId          String
+  productId       String
+  subscriptionId  String?     @unique
+  status          OrderStatus @default(PENDING)
+  tipoPagamento   PaymentType
+  valor           Decimal     @db.Decimal(10, 2)
+  mpPaymentId     String?     @unique
+  mpPreferenceId  String?
+  qrCodePix       String?     @db.Text
+  qrCodeBase64    String?     @db.Text
+  codigoPix       String?     @db.Text
+  expiresAt       DateTime?
+  paidAt          DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  // Relations
+  user         User         @relation(fields: [userId], references: [id])
+  product      Product      @relation(fields: [productId], references: [id])
+  subscription Subscription? @relation(fields: [subscriptionId], references: [id])
+  invoice      Invoice?
+
+  @@index([userId])
+  @@index([productId])
+  @@index([status])
+  @@index([mpPaymentId])
+  @@index([expiresAt])
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  CANCELLED
+  EXPIRED
+}
+
+enum PaymentType {
+  PIX
+  CARD
+  BOLETO
+}
+
+// ============================================
+// ASSINATURAS
+// ============================================
+
+model Subscription {
+  id                    String            @id @default(uuid())
+  userId               String
+  productId            String
+  status               SubscriptionStatus @default(ACTIVE)
+  plano                Plan
+  dataInicio           DateTime
+  dataFim              DateTime
+  dataProximaRenovacao DateTime?
+  mpPreapprovalId      String?           @unique
+  mpSubscriptionId     String?           @unique
+  tentativasRenovacao  Int               @default(0)
+  motivoCancelamento   String?
+  canceladaEm         DateTime?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+
+  // Relations
+  user         User         @relation(fields: [userId], references: [id])
+  product      Product      @relation(fields: [productId], references: [id])
+  order        Order?
+  credentials  Credential[]
+  invoices     Invoice[]
+
+  @@index([userId])
+  @@index([productId])
+  @@index([status])
+  @@index([dataProximaRenovacao])
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+  EXPIRED
+}
+
+enum Plan {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+// ============================================
+// CREDENCIAIS
+// ============================================
+
+model Credential {
+  id             String    @id @default(uuid())
+  userId         String
+  productId      String
+  subscriptionId String?
+  tipo           String
+  valores        Json      // Array<{nome, valor, isPassword}>
+  validade       DateTime?
+  revogada       Boolean   @default(false)
+  detalhes       Json      @default("{}")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  user         User         @relation(fields: [userId], references: [id])
+  product      Product      @relation(fields: [productId], references: [id])
+  subscription Subscription? @relation(fields: [subscriptionId], references: [id])
+
+  @@index([userId])
+  @@index([subscriptionId])
+  @@index([validade])
+}
+
+// ============================================
+// FATURAS
+// ============================================
+
+model Invoice {
+  id             String       @id @default(uuid())
+  subscriptionId String
+  orderId        String?      @unique
+  status         InvoiceStatus @default(PENDING)
+  valor          Decimal      @db.Decimal(10, 2)
+  tipoPagamento  PaymentType?
+  mpPaymentId    String?      @unique
+  dataVencimento DateTime
+  dataPagamento DateTime?
+  tentativas     Int          @default(0)
+  ultimoErro    String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  // Relations
+  subscription Subscription @relation(fields: [subscriptionId], references: [id])
+  order        Order?       @relation(fields: [orderId], references: [id])
+
+  @@index([subscriptionId])
+  @@index([status])
+  @@index([dataVencimento])
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+// ============================================
+// LOGS E AUDITORIA
+// ============================================
+
+model WebhookLog {
+  id          String    @id @default(uuid())
+  provider    String    // mercadopago
+  eventType   String
+  payload     Json
+  processado  Boolean   @default(false)
+  erro        String?
+  createdAt   DateTime  @default(now())
+
+  @@index([provider])
+  @@index([processado])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  acao       String   // CREATE, UPDATE, DELETE
+  entidade   String   // nome da tabela
+  entidadeId String
+  dadosAntigos Json?
+  dadosNovos  Json?
+  ip         String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([entidade])
+  @@index([createdAt])
+}
+```
+
+### 2. Migrations
+
+```bash
+# Gerar migration inicial
+npx prisma migrate dev --name init
+
+# Aplicar migrations em produção
+npx prisma migrate deploy
+
+# Resetar banco (dev only)
+npx prisma migrate reset
+```
+
+---

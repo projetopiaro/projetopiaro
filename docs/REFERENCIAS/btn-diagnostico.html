@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Piaro — Diagnóstico: Botão Cifra Club</title>
+<style>
+  /* ============================================================
+     DIAGNÓSTICO DO BOTÃO — não é código de produção.
+     Objetivo: comparar visualmente a tabela 4.2/5.7 da
+     docs/REFERENCIAS/01-DESIGN-REFERENCE.md com o botão real
+     do Cifra Club.
+
+     Como usar:
+       1. Abra este arquivo no navegador
+       2. Abra o Cifra Club ao lado
+       3. Compare as alturas e distâncias com as réguas
+       4. Anote qual botão do Cifra Club se parece com qual
+          linha da tabela
+     ============================================================ */
+
+  :root {
+    /* Paleta real da Piaro */
+    --bg: #000000;
+    --surface: #1b1b1b;
+    --raised: #262626;
+    --overlay: #303030;
+    --fg: #f1f1f1;
+    --muted: #777777;
+    --fg-secondary: #ababab;
+    --primary: #b77d36;
+    --primary-fg: #181818;
+    --border-strong: #474747;
+    --radius-lg: 12px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 40px 24px 120px;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: Roboto, system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; }
+
+  h1 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 8px;
+  }
+
+  .intro {
+    color: var(--muted);
+    margin: 0 0 40px;
+    max-width: 640px;
+  }
+
+  h2 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 48px 0 4px;
+    padding-top: 24px;
+    border-top: 1px solid var(--overlay);
+  }
+
+  h2:first-of-type { border-top: none; padding-top: 0; }
+
+  .note {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 0 0 24px;
+  }
+
+  /* ── Réguas de medida ─────────────────────────────────── */
+
+  .ruler {
+    position: relative;
+    height: 22px;
+    margin: 0 0 4px;
+    border-bottom: 1px solid var(--border-strong);
+    background-image: repeating-linear-gradient(
+      to right,
+      var(--border-strong) 0,
+      var(--border-strong) 1px,
+      transparent 1px,
+      transparent 8px
+    );
+  }
+
+  .ruler::after {
+    content: "8px";
+    position: absolute;
+    left: 2px;
+    top: 2px;
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .ruler-lg {
+    background-image: repeating-linear-gradient(
+      to right,
+      var(--border-strong) 0,
+      var(--border-strong) 1px,
+      transparent 1px,
+      transparent 64px
+    );
+  }
+
+  .ruler-lg::after { content: "64px"; }
+
+  /* ── Linha de botão ───────────────────────────────────── */
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    padding: 20px 0;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 16px;
+    border-radius: var(--radius-lg);
+    white-space: nowrap;
+  }
+
+  .btn-primary { background: var(--primary); color: var(--primary-fg); }
+  .btn-secondary { background: var(--raised); color: var(--fg); }
+  .btn-outline {
+    background: transparent;
+    color: var(--fg);
+    box-shadow: inset 0 0 0 1px var(--border-strong);
+  }
+  .btn-ghost { background: transparent; color: var(--fg); }
+
+  /* Padding: Identico à tabela 4.2 */
+  .p-sm { padding: 8px 16px; }
+  .p-md { padding: 12px 16px; }
+  .p-md-lg { padding: 12px 24px; }
+  .p-lg { padding: 13px 40px; }
+  .p-cta { padding: 23px 24px; }
+
+  /* ── Metrícula ao lado ────────────────────────────────── */
+
+  .metrics {
+    font-family: "Roboto Mono", ui-monospace, monospace;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .metrics b {
+    color: var(--fg-secondary);
+    font-weight: 500;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 500;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  .tag-suspect {
+    background: hsl(0 84% 60% / 0.16);
+    color: #f87171;
+  }
+
+  .tag-ok {
+    background: hsl(142 71% 45% / 0.16);
+    color: #4ade80;
+  }
+
+  /* ── Bloco de comparação lado a lado ─────────────────── */
+
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--overlay);
+    border: 1px solid var(--overlay);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 24px;
+  }
+
+  .compare > div {
+    background: var(--surface);
+    padding: 20px;
+  }
+
+  .compare h3 {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin: 0 0 16px;
+  }
+
+  /* Overlay de comparação: sobrepõe dois botões com opacidade
+     para ver se as bordas coincidem. */
+  .stack {
+    position: relative;
+    display: inline-block;
+  }
+
+  .stack .ghost-outline {
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 0 0 1px hsl(0 84% 60% / 0.8);
+    border-radius: var(--radius-lg);
+    pointer-events: none;
+  }
+
+  @media (max-width: 640px) {
+    .row { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .compare { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Diagnóstico: botão do Cifra Club</h1>
+  <p class="intro">
+    Cada linha abaixo replica uma entrada da tabela 4.2
+    (<code>docs/REFERENCIAS/01-DESIGN-REFERENCE.md</code>). Abra o Cifra Club ao
+    lado e compare as alturas. As réguas usam divisões de 8px (tracejadas) e
+    64px (linha cheia) — se um botão do Cifra Club medir exatamente um número de
+    divisões, é esse o padding.
+  </p>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <h2>1. As cinco variantes extraídas</h2>
+  <p class="note">
+    Sequentialmente da esquerda para a direita, como na tabela 4.2.
+    Meça a altura total de cada botão — não só o padding.
+  </p>
+
+  <div class="row">
+    <button class="btn p-sm btn-primary">Pequeno 8×16</button>
+    <button class="btn p-md btn-primary">Médio 12×16</button>
+    <button class="btn p-md-lg btn-primary">Médio largo 12×24</button>
+    <button class="btn p-lg btn-primary">Grande 13×40</button>
+    <button class="btn p-cta btn-primary">CTA 23×24</button>
+  </div>
+
+  <div class="metrics">
+    Alturas reais renderizadas (fonte 14px, <b>line-height: 16px</b> fixo):<br>
+    p-sm → 8+16+8 = <b>32px</b> &nbsp;·&nbsp;
+    p-md → 12+16+12 = <b>40px</b> &nbsp;·&nbsp;
+    p-md-lg → 12+16+12 = <b>40px</b> &nbsp;·&nbsp;
+    p-lg → 13+16+13 = <b>42px</b> &nbsp;·&nbsp;
+    p-cta → 23+16+23 = <b>62px</b>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <h2>2. O CTA em detalhe <span class="tag tag-suspect">suspeito</span></h2>
+  <p class="note">
+    <code>padding: 23px 24px</code> é o único valor da tabela que não segue a
+    progressão 8 → 12 → 12 → 13. Reforce o botão abaixo e meça:
+  </p>
+
+  <div class="ruler ruler-lg" style="margin-bottom: 8px;"></div>
+
+  <div class="row" style="padding-top: 0;">
+    <div class="stack">
+      <button class="btn p-cta btn-primary">Assinar agora</button>
+      <div class="ghost-outline"></div>
+    </div>
+    <div class="metrics">
+      <b>62px</b> de altura total<br>
+      55% maior que o botão médio (40px)<br>
+      <b>23px</b> de padding vertical<br>
+      raio 12px = 19% da altura
+    </div>
+  </div>
+
+  <p class="note" style="margin-top: 24px;">
+    <strong>O que olhar no Cifra Club:</strong> existe algum botão de 62px de
+    altura? Ou o botão principal deles tem a mesma altura dos outros, e a
+    distinção é só de cor?
+  </p>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <h2>3. Comparação: tamanho × cor</h2>
+  <p class="note">
+    Esta é a <strong>opção A</strong> que propus: o CTA tem o mesmo tamanho do
+    botão grande, e a hierarquia vem só da cor. Compare com a linha 2 acima —
+    a diferença de 66px contra 46px é o que a opção A elimina.
+  </p>
+
+  <div class="compare">
+    <div>
+      <h3>Extração atual — 5 tamanhos</h3>
+      <div class="row" style="padding: 0;">
+        <button class="btn p-md btn-secondary">Médio</button>
+        <button class="btn p-lg btn-outline">Grande</button>
+        <button class="btn p-cta btn-primary">CTA</button>
+      </div>
+      <div class="metrics" style="margin-top: 16px;">
+        40px → 42px → <b style="color:#f87171">62px</b>
+      </div>
+    </div>
+    <div>
+      <h3>Opção A — 4 tamanhos, hierarquia por cor</h3>
+      <div class="row" style="padding: 0;">
+        <button class="btn p-md btn-secondary">Médio</button>
+        <button class="btn p-lg btn-outline">Grande</button>
+        <button class="btn p-lg btn-primary">CTA</button>
+      </div>
+      <div class="metrics" style="margin-top: 16px;">
+        40px → 42px → <b style="color:#4ade80">42px</b><br>
+        CTA = mesma classe de tamanho, cor preenchida
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <h2>4. Referência rápida</h2>
+  <p class="note">O que responder para mim, em uma linha:</p>
+
+  <div class="metrics" style="line-height: 2;">
+    → O botão principal do Cifra Club mede <b>_____px</b> de altura<br>
+    → O padding vertical dele parece <b>8 / 12 / 13 / 16 / 23</b> px<br>
+    → A distinção de hierarquia é <b>tamanho</b> ou <b>cor</b><br>
+    → Tem botão com 23px de padding vertical? <b>sim / não / não sei</b>
+  </div>
+
+  <div class="ruler ruler-lg" style="margin-top: 32px;"></div>
+  <div class="metrics" style="margin-top: 8px; color: var(--muted);">
+    Fim do diagnóstico. Este arquivo é descartável — não faz parte do app.
+  </div>
+
+</div>
+</body>
+</html>

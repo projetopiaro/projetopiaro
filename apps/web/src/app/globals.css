@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Piaro — tema dark-only.
+ *
+ * Paleta extraída do design system do Cifra Club e convertida para HSL de
+ * 3 canais (formato shadcn/ui) para permitir alpha no 4º canal.
+ *
+ * As variáveis `--background`, `--foreground`, `--card`, `--primary`, etc.
+ * mantêm os nomes que o shadcn/ui espera — apenas os valores mudaram. Os
+ * tokens `--header`, `--footer`, estados e categorias são específicos da Piaro.
+ *
+ * Referência: docs/REFERENCIAS/01-DESIGN-REFERENCE.md — seções 2 e 4.4.
+ */
+@layer base {
+  :root {
+    // ── Superfícies (shadcn) ──────────────────────────────────
+    --background: 0 0% 0%; /* #000000 */
+    --foreground: 0 0% 95%; /* #f1f1f1 */
+
+    --card: 0 0% 11%; /* #1b1b1b */
+    --card-foreground: 0 0% 95%; /* #f1f1f1 */
+
+    --popover: 0 0% 15%; /* #262626 */
+    --popover-foreground: 0 0% 95%; /* #f1f1f1 */
+
+    // ── Superfícies (shadcn) ──────────────────────────────────
+    --secondary: 0 0% 15%; /* #262626 */
+    --secondary-foreground: 0 0% 95%; /* #f1f1f1 */
+
+    --muted: 0 0% 15%; /* #262626 */
+    --muted-foreground: 0 0% 47%; /* #777777 */
+
+    --accent: 0 0% 19%; /* #303030 */
+    --accent-foreground: 0 0% 95%; /* #f1f1f1 */
+
+    // ── Ação ──────────────────────────────────────────────────
+    --primary: 33 54% 46%; /* #b77d36 */
+    --primary-foreground: 0 0% 9%; /* #181818 */
+
+    --destructive: 0 84% 60%; /* #ef4444 */
+    --destructive-foreground: 0 0% 100%; /* #ffffff */
+
+    // ── Bordas e foco ─────────────────────────────────────────
+    --border: 0 0% 11%; /* #1b1b1b */
+    --input: 0 0% 28%; /* #474747 */
+    --ring: 33 54% 46%; /* #b77d36 */
+
+    --radius: 0.625rem; /* 10px — border-radius do Cifra Club */
+
+    // ── Tokens específicos da Piaro ───────────────────────────
+    --header: 0 0% 9%; /* #181818 */
+    --footer: 0 0% 8%; /* #141414 */
+
+    --surface-overlay: 0 0% 19%; /* #303030 */
+
+        // Hover de ação (botões com fundo transparente)
+        --primary-hover: 34 55% 51%; /* #c78b3f */
+        --primary-hover-alpha: 33 54% 46% / 0.35; /* rgba(183,125,54,0.35) */
+
+    --border-subtle: 0 0% 11%; /* #1b1b1b */
+    --border-strong: 0 0% 28%; /* #474747 */
+    --border-focus: 0 0% 37%; /* #5e5e5e */
+
+    --foreground-secondary: 0 0% 67%; /* #ababab */
+    --on-media: 0 0% 100%; /* #ffffff */
+
+    // Estados semânticos
+    --success: 142 71% 45%; /* #22c55e */
+    --warning: 38 92% 50%; /* #f59e0b */
+    --danger: 0 84% 60%; /* #ef4444 */
+    --info: 217 91% 60%; /* #3b82f6 */
+    --discount: 142 71% 45%; /* #22c55e — alias de --success */
+
+    // Categorias de streaming
+    --cat-video: 33 54% 46%; /* #b77d36 */
+    --cat-music: 142 71% 45%; /* #22c55e */
+    --cat-anime: 271 91% 65%; /* #a855f7 */
+    --cat-sports: 0 84% 60%; /* #ef4444 */
+    --cat-vpn: 217 91% 60%; /* #3b82f6 */
+    --cat-cloud: 189 94% 43%; /* #06b6d4 */
+    --cat-software: 38 92% 50%; /* #f59e0b */
+
+    // Canais RGB das categorias — usados como fallback de `color-mix()`
+    // em navegadores sem suporte (Safari <16.2, Chrome <111).
+    // Aplicar como: background: rgb(var(--cat-video-rgb) / 0.15);
+    --cat-video-rgb: 183 125 54; /* #b77d36 */
+    --cat-music-rgb: 34 197 94; /* #22c55e */
+    --cat-anime-rgb: 168 85 247; /* #a855f7 */
+    --cat-sports-rgb: 239 68 68; /* #ef4444 */
+    --cat-vpn-rgb: 59 130 246; /* #3b82f6 */
+    --cat-cloud-rgb: 6 182 212; /* #06b6d4 */
+    --cat-software-rgb: 245 158 11; /* #f59e0b */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
