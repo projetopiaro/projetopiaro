@@ -423,4 +423,4 @@ fi
 
 # Limpa pending
 rm -rf "$PENDING_DIR"
-echo "$PENDING_DIR/ limpo."teste
+echo "$PENDING_DIR/ limpo."
