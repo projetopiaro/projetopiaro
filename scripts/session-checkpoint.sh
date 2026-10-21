@@ -336,8 +336,11 @@ if [ "${#PENDING_FILES[@]}" -gt 0 ]; then
   if [ -n "$unassigned_after" ]; then
     timestamp="$(timestamp)"
     title="chore: checkpoint fim de sessão ${timestamp}"
-    body="Arquivos sem origem declarada em \$PENDING_DIR.
-Vão juntos neste commit catch-all. Considere criar uma origem para eles."
+    body="Arquivos sem origem declarada em $PENDING_DIR.
+Vão juntos neste commit catch-all. Considere criar uma origem para eles no próximo checkpoint.
+
+Arquivos incluídos:
+$(git diff --cached --name-only | sed 's/^/  - /')"
 
     doc_path="docs/CHECKPOINTS/$(date_file)-$(time_file)-outros.md"
     {
