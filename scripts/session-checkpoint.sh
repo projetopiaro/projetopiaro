@@ -178,6 +178,8 @@ HASH_SHORT="$(git rev-parse --short HEAD)"
 
 if [ -n "$COMMIT_BODY" ]; then
   mkdir -p docs/CHECKPOINTS
+  # Git não versiona diretórios vazios — .gitkeep garante que a pasta persista
+  touch docs/CHECKPOINTS/.gitkeep
   CHECKPOINT_DOC="docs/CHECKPOINTS/$DATE_FILE-$(date '+%H%M').md"
 
   {
